@@ -34,3 +34,17 @@ def getSortedCategories():
     return Category.objects.annotate( count= Count( 'post' ) ).order_by( '-count' )
 
 
+def search( request ):
+    query = request.POST.get( 'search' )
+    context = {
+        'categories': getSortedCategories(),
+        'query': query
+    }
+
+    if query and (4 <= len(query) <= 20):
+        context[ 'posts' ] = Post.objects.filter( title__icontains= query )
+
+    else:
+        context[ 'message' ] = 'Query needs to be between 4 and 20 characters.'
+
+    return render( request, 'blog/search.html', context )
